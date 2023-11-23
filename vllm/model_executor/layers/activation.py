@@ -38,6 +38,9 @@ class FastGELU(nn.Module):
         activation_ops.gelu_fast(out, x)
         return out
 
+class SwiGLUActivation(nn.Module):
+    def forward(self, x1: torch.Tensor, x2: torch.Tensor) -> torch.Tensor:
+        return x1 * nn.functional.silu(x2)
 
 _ACTIVATION_REGISTRY = {
     "gelu": nn.GELU(),
@@ -45,6 +48,7 @@ _ACTIVATION_REGISTRY = {
     "gelu_new": NewGELU(),
     "gelu_pytorch_tanh": nn.GELU(approximate="tanh"),
     "relu": nn.ReLU(),
+    "swiglu": SwiGLUActivation(),
 }
 
 
