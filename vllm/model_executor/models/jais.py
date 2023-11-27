@@ -253,29 +253,15 @@ class JAISLMHeadModel(nn.Module):
         for name, loaded_weight in hf_model_weights_iterator(
                 model_name_or_path, cache_dir, load_format, revision):
 
-            print('name: {}'.format(name))
-            continue
-            if "lm_head.weight" in name:
-                # GPT-2 ties the weights of the embedding layer and the final
-                # linear layer.
+            if name not in params_dict:
                 continue
-            if ".attn.bias" in name or ".attn.masked_bias" in name:
-                # Skip attention mask.
-                # NOTE: "c_attn.bias" should not be skipped.
-                continue
-            if not name.startswith("transformer."):
-                name = "transformer." + name
             param = params_dict[name]
-            # The HF's GPT-2 implementation uses Conv1D instead of Linear.
-            # Because of this, we need to transpose the weights.
-            # Note(zhuohan): the logic below might break quantized models.
             for conv1d_weight_name in ["c_attn", "c_proj", "c_fc"]:
                 if conv1d_weight_name not in name:
                     continue
                 if not name.endswith(".weight"):
                     continue
                 loaded_weight = loaded_weight.t()
-
             weight_loader = getattr(param, "weight_loader",
                                     default_weight_loader)
             weight_loader(param, loaded_weight)
