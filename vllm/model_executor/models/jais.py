@@ -224,7 +224,6 @@ class JAISModel(nn.Module):
         assert not config.reorder_and_upcast_attn
         self.embed_dim = config.hidden_size
         self.wte = VocabParallelEmbedding(config.vocab_size, self.embed_dim)
-        self.wpe = nn.Embedding(config.max_position_embeddings, self.embed_dim)
         self.h = nn.ModuleList([
             JAISBlock(config, linear_method)
             for _ in range(config.num_hidden_layers)
